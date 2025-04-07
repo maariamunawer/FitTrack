@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="hero fade-in">
+    <h2>Welcome to FitTrack</h2>
+    <p>Get personalized exercise recommendations, water intake guidance, and diet plans tailored to your goals and physical attributes.</p>
+</section>
+
+<section class="section fade-in delay-1">
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-user-circle"></i> Your Information</h3>
+        </div>
+        <div class="form-container">
+            <form id="user-info-form" action="{{ url_for('process') }}" method="post">
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" min="12" max="100" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weight">Current Weight (kg)</label>
+                    <input type="number" id="weight" name="weight" min="30" max="300" step="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goal_weight">Goal Weight (kg)</label>
+                    <input type="number" id="goal_weight" name="goal_weight" min="30" max="300" step="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sex">Sex</label>
+                    <select id="sex" name="sex" required>
+                        <option value="" disabled selected>Select your sex</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" name="height" min="100" max="250" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="activity_level">Activity Level</label>
+                    <select id="activity_level" name="activity_level" required>
+                        <option value="" disabled selected>Select your activity level</option>
+                        <option value="sedentary">Sedentary (little or no exercise)</option>
+                        <option value="light">Light (1-3 days/week)</option>
+                        <option value="moderate">Moderate (3-5 days/week)</option>
+                        <option value="active">Active (6-7 days/week)</option>
+                        <option value="very_active">Very Active (intense exercise daily)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-full">Get My Recommendations</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="section fade-in delay-2">
+    <h2>Why FitTrack?</h2>
+    
+    <div class="exercise-grid">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-dumbbell"></i> Personalized Exercises</h3>
+            </div>
+            <p>Receive customized exercise recommendations tailored to your body type, fitness level, and goals.</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-tint"></i> Hydration Guidance</h3>
+            </div>
+            <p>Get the optimal water intake recommendation based on your weight and activity level.</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-utensils"></i> Nutrition Plans</h3>
+            </div>
+            <p>Discover meal suggestions and dietary guidelines that support your fitness journey.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section fade-in delay-3">
+    <h2>Start Your Journey</h2>
+    <p>Complete the form above to receive your personalized fitness recommendations. Your data stays private and is not stored anywhere.</p>
+    
+    <div class="tips-container">
+        <h3><i class="fas fa-lightbulb"></i> Quick Tips</h3>
+        <ul class="tips-list">
+            <li>Have your current measurements ready for the most accurate recommendations</li>
+            <li>Be honest about your activity level for realistic guidance</li>
+            <li>Set achievable goals - aim for gradual, sustainable progress</li>
+            <li>Consistency is key - follow your plan regularly for best results</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Custom validations (beyond what's in main.js)
+    document.getElementById('user-info-form').addEventListener('submit', function(e) {
+        const currentWeight = parseFloat(document.getElementById('weight').value);
+        const goalWeight = parseFloat(document.getElementById('goal_weight').value);
+        
+        // Warn about extreme weight goals (more than 20% change)
+        if (Math.abs(goalWeight - currentWeight) > (currentWeight * 0.2)) {
+            const proceed = confirm('You\'ve set a goal weight that is more than 20% different from your current weight. This is a significant change and should be approached gradually. Do you want to continue?');
+            
+            if (!proceed) {
+                e.preventDefault();
+            }
+        }
+    });
+</script>
+{% endblock %}

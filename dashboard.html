@@ -1,0 +1,331 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="dashboard-header fade-in">
+    <h2>Your Personalized Fitness Plan</h2>
+    <p>Based on your profile and goals, we've created a comprehensive fitness plan to help you reach your target weight of {{ user_data.goal_weight }}kg.</p>
+</div>
+
+<section class="dashboard-stats fade-in">
+    <div class="stat-card">
+        <h3>Current BMI</h3>
+        <div class="value">{{ bmi }}</div>
+        <div class="description">
+            {% if bmi < 18.5 %}
+                Underweight
+            {% elif bmi < 25 %}
+                Normal
+            {% elif bmi < 30 %}
+                Overweight
+            {% else %}
+                Obese
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Daily Calories</h3>
+        <div class="value">{{ calorie_target }}</div>
+        <div class="description">
+            Target intake for 
+            {% if goal_type == 'loss' %}
+                weight loss
+            {% elif goal_type == 'gain' %}
+                weight gain
+            {% else %}
+                maintenance
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Water Intake</h3>
+        <div class="value">{{ water_intake }}L</div>
+        <div class="description">Recommended daily consumption</div>
+    </div>
+    
+    {% if weeks_to_goal > 0 %}
+    <div class="stat-card">
+        <h3>Estimated Timeline</h3>
+        <div class="value">{{ weeks_to_goal }}</div>
+        <div class="description">Weeks to reach your goal weight</div>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Weight Progress Chart -->
+<section class="dashboard-section fade-in delay-1">
+    <h2>Your Weight Progress Plan</h2>
+    
+    <div class="chart-container">
+        <canvas id="progressChart"></canvas>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>Goal Analysis</h3>
+        </div>
+        
+        <div class="card-content">
+            <p>
+                {% if goal_type == 'loss' %}
+                    You're looking to lose {{ (user_data.weight - user_data.goal_weight)|round(1) }}kg. With a moderate calorie deficit of around 500 calories per day, you can expect to lose approximately 0.5kg per week.
+                {% elif goal_type == 'gain' %}
+                    You're looking to gain {{ (user_data.goal_weight - user_data.weight)|round(1) }}kg. With a calorie surplus of around 500 calories per day, you can expect to gain approximately 0.5kg per week.
+                {% else %}
+                    Your goal weight matches your current weight. Our recommendations will focus on maintaining your weight while improving overall fitness and health.
+                {% endif %}
+            </p>
+            
+            <p>Remember that sustainable, long-term changes are more effective than quick fixes. The plan outlined here is designed to help you reach your goals in a healthy way.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Exercise Recommendations -->
+<section class="dashboard-section fade-in delay-1">
+    <h2>Recommended Exercises</h2>
+    
+    <div class="exercise-grid">
+        {% for exercise in exercises.exercises %}
+            <div class="exercise-card">
+                <img src="{{ exercise.image_url }}" alt="{{ exercise.name }}" class="exercise-image">
+                <div class="exercise-details">
+                    <span class="exercise-category">{{ exercise.category }}</span>
+                    <h3 class="exercise-title">{{ exercise.name }}</h3>
+                    <p>{{ exercise.description }}</p>
+                    
+                    <div class="exercise-info">
+                        {% if exercise.category == 'cardio' %}
+                            <span><i class="fas fa-clock"></i> {{ exercise.duration }}</span>
+                            <span><i class="fas fa-fire"></i> {{ exercise.calories_burned }}</span>
+                        {% elif exercise.category == 'strength' %}
+                            <span><i class="fas fa-layer-group"></i> {{ exercise.sets }}</span>
+                            <span><i class="fas fa-redo"></i> {{ exercise.reps }}</span>
+                        {% else %}
+                            <span><i class="fas fa-clock"></i> {{ exercise.duration }}</span>
+                            <span><i class="fas fa-bullseye"></i> {{ exercise.focus }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Weekly Schedule -->
+<section class="dashboard-section fade-in delay-2">
+    <h2>Weekly Workout Schedule</h2>
+    
+    <div class="schedule-grid">
+        {% for day, activities in exercises.schedule.items() %}
+            <div class="day-card">
+                <div class="day-name">{{ day }}</div>
+                <div class="day-activities">{{ activities }}</div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="tips-container">
+        <h3>Workout Tips</h3>
+        <ul class="tips-list">
+            <li>Always warm up for 5-10 minutes before exercise and cool down afterward</li>
+            <li>Start with lighter weights/intensities and gradually increase as you progress</li>
+            <li>Proper form is more important than weight or reps</li>
+            <li>Listen to your body - rest when needed and avoid pushing through pain</li>
+            <li>Aim for consistency rather than perfection</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Nutrition Plan -->
+<section class="dashboard-section fade-in delay-2">
+    <h2>Nutrition Recommendations</h2>
+    
+    <div class="chart-container">
+        <h3>Daily Macronutrient Breakdown</h3>
+        <canvas id="macroChart" data-protein="{{ diet.macros.protein }}" data-fat="{{ diet.macros.fat }}" data-carbs="{{ diet.macros.carbs }}"></canvas>
+    </div>
+    
+    <div class="macro-container">
+        <div class="macro-card">
+            <h3>Protein</h3>
+            <div class="macro-value">{{ diet.macros.protein }}g</div>
+            <p>Builds and repairs muscle tissue</p>
+        </div>
+        
+        <div class="macro-card">
+            <h3>Fats</h3>
+            <div class="macro-value">{{ diet.macros.fat }}g</div>
+            <p>Essential for hormone production</p>
+        </div>
+        
+        <div class="macro-card">
+            <h3>Carbs</h3>
+            <div class="macro-value">{{ diet.macros.carbs }}g</div>
+            <p>Primary energy source</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>Daily Meal Structure</h3>
+        </div>
+        
+        <div class="meal-plan">
+            {% for meal_name, meal_data in diet.meal_structure.items() %}
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h3>{{ meal_name|capitalize }}</h3>
+                    </div>
+                    <div class="meal-content">
+                        <div class="meal-calories">{{ meal_data.calories }} calories</div>
+                        <p>{{ meal_data.description }}</p>
+                        <p><strong>Example:</strong> {{ diet.meal_examples[meal_name] }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>Recommended Foods</h3>
+        </div>
+        
+        <div class="food-categories">
+            <h4>Protein Sources</h4>
+            <div class="food-list">
+                {% for food in diet.food_recommendations.protein_sources %}
+                    <div class="food-item">
+                        <div class="food-name">{{ food.name }}</div>
+                        <div class="food-info">{{ food.info }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <h4>Carbohydrate Sources</h4>
+            <div class="food-list">
+                {% for food in diet.food_recommendations.carb_sources %}
+                    <div class="food-item">
+                        <div class="food-name">{{ food.name }}</div>
+                        <div class="food-info">{{ food.info }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <h4>Healthy Fat Sources</h4>
+            <div class="food-list">
+                {% for food in diet.food_recommendations.fat_sources %}
+                    <div class="food-item">
+                        <div class="food-name">{{ food.name }}</div>
+                        <div class="food-info">{{ food.info }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="tips-container">
+        <h3>Nutrition Tips</h3>
+        <ul class="tips-list">
+            {% for tip in diet.tips %}
+                <li>{{ tip }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<!-- Water Intake -->
+<section class="dashboard-section fade-in delay-3">
+    <h2>Water Intake Recommendation</h2>
+    
+    <div class="water-tracker">
+        <div class="water-visual">
+            <div class="water-glass">
+                <div class="water-fill" style="height: 0%;"></div>
+                <div class="water-percentage">0.0L</div>
+            </div>
+        </div>
+        
+        <div id="recommended-water" class="water-recommendation" data-liters="{{ water_intake }}">
+            Aim to drink <strong>{{ water_intake }} liters</strong> of water daily.
+        </div>
+        
+        <div class="chart-container">
+            <h3>Ideal Water Consumption Pattern</h3>
+            <canvas id="waterProgressChart"></canvas>
+        </div>
+        
+        <div class="tips-container">
+            <h3>Hydration Tips</h3>
+            <ul class="tips-list">
+                <li>Drink a glass of water first thing in the morning to rehydrate</li>
+                <li>Carry a reusable water bottle with you throughout the day</li>
+                <li>Set reminders to drink water regularly</li>
+                <li>Increase intake during exercise or hot weather</li>
+                <li>Herbal teas and infused water count toward your daily target</li>
+                <li>Monitor urine color - pale yellow indicates good hydration</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- BMI Information -->
+<section class="dashboard-section fade-in delay-3">
+    <h2>Understanding Your BMI</h2>
+    
+    <div class="chart-container">
+        <canvas id="bmiChart" data-bmi="{{ bmi }}"></canvas>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>BMI Categories</h3>
+        </div>
+        
+        <div class="card-content">
+            <p>Body Mass Index (BMI) is a simple calculation using your height and weight. While BMI is not perfect, it provides a helpful starting point for understanding your weight status.</p>
+            
+            <ul>
+                <li><strong>Under 18.5:</strong> Underweight</li>
+                <li><strong>18.5 - 24.9:</strong> Normal weight</li>
+                <li><strong>25 - 29.9:</strong> Overweight</li>
+                <li><strong>30 and above:</strong> Obese</li>
+            </ul>
+            
+            <p>Your BMI is <strong>{{ bmi }}</strong>, which is categorized as 
+            {% if bmi < 18.5 %}
+                <strong>underweight</strong>.
+            {% elif bmi < 25 %}
+                <strong>normal weight</strong>.
+            {% elif bmi < 30 %}
+                <strong>overweight</strong>.
+            {% else %}
+                <strong>obese</strong>.
+            {% endif %}
+            </p>
+            
+            <p><em>Note: BMI does not differentiate between muscle and fat mass. Athletes or very muscular individuals may have a high BMI despite having healthy body composition.</em></p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize progress chart
+        createProgressChart(
+            {{ user_data.weight }}, 
+            {{ user_data.goal_weight }}
+        );
+        
+        // Initialize calorie chart
+        createCalorieChart({{ calorie_target }});
+        
+        // Initialize water chart
+        createWaterChart({{ water_intake }});
+    });
+</script>
+{% endblock %}
