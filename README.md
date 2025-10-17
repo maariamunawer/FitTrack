@@ -54,3 +54,8 @@ python app.py
 <img width="612" height="638" alt="Scree<img width="607" height="783" alt="Screenshot 2025-10-17 175921" src="https://github.com/user-attachments/assets/cfc9025d-bf1a-4671-8595-d5c816cbc08e" />
 nshot 2025-10-17 175909" src="https://github.com/user-attachments/assets/4ff85cf5-a37f-47ab-9f84-16e5e5319485" />
 
+💌 Contact
+
+Author: Maaria Munawer
+Email: maariamunawer069@gmail.com
+GitHub: maariamunawer
